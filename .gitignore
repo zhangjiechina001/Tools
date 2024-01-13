@@ -1,0 +1,14 @@
+/.idea/
+/build/
+/dist/
+/venv/
+*build/
+*dist/
+/tmp/
+*/release/
+*/Makefile*
+*/.qmake.stash
+src/temp/
+src/eigen-3.3.8/
+*.spec
+*.pyc
