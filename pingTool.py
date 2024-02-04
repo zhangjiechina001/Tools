@@ -5,13 +5,6 @@ from tkinter import ttk
 import threading
 from multiping import multi_ping, MultiPing
 
-addrs = ["8.8.8.8", "youtube.com", "127.0.0.1"]
-
-# Ping the addresses up to 4 times (initial ping + 3 retries), over the
-# course of 2 seconds. This means that for those addresses that do not
-# respond another ping will be sent every 0.5 seconds.
-responses, no_responses = multi_ping(addrs, timeout=2, retry=3)
-
 def new_ping(ip_address):
     try:
         # 在 Windows 上使用 "ping -n"，在 Linux/Mac 上使用 "ping -c"
@@ -50,6 +43,7 @@ def check_unused_ips_thread():
     thread1.start()
 
 # pyinstaller -F -w --uac-admin -i .\img\ip_set.ico -n PingTool .\pingTool.py
+# pyinstaller -F -w -i .\img\ip_set.ico -n PingTool .\pingTool.py
 window = tk.Tk()
 window.title("已使用的IP地址检测工具")
 window.geometry("400x400")
