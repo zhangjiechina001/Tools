@@ -5,28 +5,9 @@ from tkinter import ttk
 import threading
 from multiping import multi_ping, MultiPing
 
-addrs = ["8.8.8.8", "youtube.com", "127.0.0.1"]
-
-# Ping the addresses up to 4 times (initial ping + 3 retries), over the
-# course of 2 seconds. This means that for those addresses that do not
-# respond another ping will be sent every 0.5 seconds.
-responses, no_responses = multi_ping(addrs, timeout=2, retry=3)
-
-def new_ping(ip_address):
-    try:
-        # 在 Windows 上使用 "ping -n"，在 Linux/Mac 上使用 "ping -c"
-        subprocess.check_output(['ping', '-n', '1', ip_address])  # for Windows
-        # subprocess.check_output(['ping', '-c', '1', ip_address])  # for Linux/Mac
-        return True
-    except subprocess.CalledProcessError:
-        return False
-
 def check_unused_ips():
     button.configure(state=tk.DISABLED)
     ip_range = entry.get()
-    unused_ips = []
-    progress_bar['maximum'] = 255
-    progress_bar['value'] = 0
     output.delete(1.0, tk.END)
     address = ["{0}.{1}".format(ip_range,i) for i in range(0, 256)]
     # Create a MultiPing object to test three hosts / addresses
@@ -34,12 +15,15 @@ def check_unused_ips():
     # Send the pings to those addresses
     mp.send()
     (ok,fail) = mp.receive(1)
-    for i in address:
-        delay = "{:.2f}".format(ok[i]*1000) if i in ok else None
-        fg_color = "green" if i in ok else "red"
+    progress_bar['maximum'] = len(ok)
+    progress_bar['value'] = 0
+    for k in ok:
+        v=ok[k]
+        delay = "{:.2f}".format(v*1000)
+        fg_color = "green"
         output.tag_configure(fg_color, foreground=fg_color)  # 创建颜色标签
         output.tag_configure(fg_color, foreground=fg_color)  # 创建颜色标签
-        output.insert(tk.END, '{0}:{1} ms\n'.format(i, delay), fg_color)
+        output.insert(tk.END, '{0}:{1} ms\n'.format(k, delay), fg_color)
         output.see(tk.END)
         progress_bar['value'] += 1
         window.update_idletasks()
@@ -63,6 +47,6 @@ button = tk.Button(window, text="检测", command=check_unused_ips_thread, font=
 button.pack(pady=10)
 progress_bar = ttk.Progressbar(window, orient=tk.HORIZONTAL, length=200, mode='determinate')
 progress_bar.pack(pady=10)
-output = scrolledtext.ScrolledText(window, width=40, height=20, font=("Arial", 12))
+output = scrolledtext.ScrolledText(window, width=40, height=50, font=("Arial", 12))
 output.pack(pady=10)
 window.mainloop()
