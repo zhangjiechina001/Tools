@@ -15,15 +15,16 @@ def check_unused_ips():
     # Send the pings to those addresses
     mp.send()
     (ok,fail) = mp.receive(1)
-    progress_bar['maximum'] = len(ok)
+
+    displayAddr=["{0}.{1}".format(ip_range,i) for i in range(0, 256)] if v.get()==0 else ok.keys()
+    progress_bar['maximum'] = len(displayAddr)
     progress_bar['value'] = 0
-    for k in ok:
-        v=ok[k]
-        delay = "{:.2f}".format(v*1000)
-        fg_color = "green"
+    for i in displayAddr:
+        delay = "{:.2f}".format(ok[i] * 1000) if i in ok else None
+        fg_color = "green" if i in ok else "red"
         output.tag_configure(fg_color, foreground=fg_color)  # 创建颜色标签
         output.tag_configure(fg_color, foreground=fg_color)  # 创建颜色标签
-        output.insert(tk.END, '{0}:{1} ms\n'.format(k, delay), fg_color)
+        output.insert(tk.END, '{0}:{1} ms\n'.format(i, delay), fg_color)
         output.see(tk.END)
         progress_bar['value'] += 1
         window.update_idletasks()
@@ -36,7 +37,7 @@ def check_unused_ips_thread():
 # pyinstaller -F -w --uac-admin -i .\img\ip_set.ico -n PingTool .\pingTool.py
 window = tk.Tk()
 window.title("已使用的IP地址检测工具")
-window.geometry("400x400")
+window.geometry("400x500")
 label = tk.Label(window, text="请输入要检测的网段（例如：192.168.0）:", font=("Arial", 12))
 label.pack(pady=10)
 entry_text_var = tk.StringVar()  # 创建StringVar变量
@@ -45,6 +46,14 @@ entry = tk.Entry(window, width=20, justify='center', font=('Arial', 12),textvari
 entry.pack()
 button = tk.Button(window, text="检测", command=check_unused_ips_thread, font=("Arial", 12))
 button.pack(pady=10)
+
+v = tk.IntVar()
+v.set(1)
+rad_showall = tk.Radiobutton(window, text="显示所有",variable=v,value=0)
+rad_showall.pack()
+rad_showok = tk.Radiobutton(window, text="显示成功",variable=v,value=1)
+rad_showok.pack()
+
 progress_bar = ttk.Progressbar(window, orient=tk.HORIZONTAL, length=200, mode='determinate')
 progress_bar.pack(pady=10)
 output = scrolledtext.ScrolledText(window, width=40, height=50, font=("Arial", 12))
